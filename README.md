@@ -1,5 +1,6 @@
 # Progetto Chat Server Tomessenger
 Il progetto consiste in un semplice server di chat utilizzando Socket.IO e Node.JS che permette agli utenti di creare e unirsi a stanze di chat.
+Inoltre tutti i messaggi che vengono inviati tramite chat protette da password vengono cifrati attraverso AES-256, tutti i messaggi durante l'invio e la ricezione sono compressi in modo da poter risparmiare risorse.
 
 ## Strumenti utilizzati ##
 ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
