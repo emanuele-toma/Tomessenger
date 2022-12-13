@@ -23,6 +23,15 @@ Il progetto consiste in un semplice server di chat che permette agli utenti di c
 2. Esegui il comando **`node index.js`** per avviare il server.
 3. Apri l'indirizzo **`http://localhost`** nel browser per iniziare a utilizzare la chat
 
+## Immagini
+<details>
+<summary>Clicca per espandere</summary>
+
+![Screenshot 1](https://i.imgur.com/JCECM81.png)
+![Screenshot 2](https://i.imgur.com/YNpBJ9r.png)
+    
+</details>
+
 ## Spiegazione codice server
 <details>
 <summary>Clicca per espandere</summary>
