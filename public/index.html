@@ -123,53 +123,66 @@
 
         btnCrea.addEventListener('click', (e) =>
         {
+            // Prendi valori dal form
             nome = document.getElementById('nome').value;
             username = document.getElementById('username').value;
             password = document.getElementById('password').value;
 			
+            // Crea hash della password usando SHA256
 			var hash = CryptoJS.SHA256(password).toString();
 			
-			
+			// Se la password è vuota non usare hash
 			if(password == '')
 				hash = password;
 
+            // Invia evento di creazione stanza
             socket.emit('crea', {nome, username, password:hash});
 
+            // Il server risponde con il nome della stanza
             socket.on(nome, (data) =>
             {
+                // Se non ci sono errori mostra chat
                 if (data.success == true)
                 {
                     switchToChat();
                 }
 
+                // Altrimenti mostra errore
                 if (data.success == false)
                 {
                     M.toast({html: "Attenzione: " + data.message})
                 }
-
+                
+                // Termina connessione socket
                 socket.off(nome);
             });
         });
 
         btnEntra.addEventListener('click', (e) =>
         {
+            // Prendi valori dal form
             nome = document.getElementById('nome').value;
             username = document.getElementById('username').value;
             password = document.getElementById('password').value;
 
+            // Crea hash dalla password
             var hash = CryptoJS.SHA256(password).toString();
 			
+            // Se password vuota non usare hash
 			if(password == '')
 				hash = password;
 			
+            // Invia evento per entrare nella stanza
             socket.emit('entra', {nome: nome, username, password:hash });
             socket.on(nome, (data) =>
             {
+                // Se non ci sono errori mostra chat
                 if (data.success == true)
                 {
                     switchToChat();
                 }
-
+                
+                // Altrimenti mostra errori
                 if (data.success == false)
                 {
                     M.toast({html: "Attenzione: " + data.message})
@@ -181,62 +194,82 @@
 
         function switchToChat()
         {
+            // Alterna visualizzazione
             document.querySelector('#chat-join').style.display = 'none';
             document.querySelector('#chat').style.display = 'block';
 
+            // Quando arriva un messaggio...
             socket.on('messaggio chat', (msg) =>
             {
+                // Scrivilo in console
                 console.log(msg);
+                // Scrivilo in chat
                 writeMessage(msg.author, msg.timestamp, msg.message, msg.author === username ? 'right' : 'left', password);
             });
-
+            
+            // Quando viene cliccato il pulsante invia...
             const btnSend = document.getElementById('btn-send');
             btnSend.addEventListener('click', (e) =>
             {
+                // Invia il messaggio
                 const message = document.getElementById('message').value;
                 sendMessage(username, Date.now(), message, password);
-
+                
+                // Ripulisci input
                 document.getElementById('message').value = '';
             });
         }
 
         function sendMessage(author, timestamp, message, password)
         {
+            // Invia messaggio al server
             socket.emit('messaggio chat', {author, timestamp, message:cifraMessaggio(message, password)});
         }
 
         function writeMessage(author, timestamp, message, side, password)
         {
-
+            // Decifra messaggio
             message = decifraMessaggio(message, password);
 
+            // Se il messaggio è vuoto ignoralo
             if(message.length < 1) return;
-
+    
+            // Imposta data del messaggio
             const data = new Date(timestamp);
 
             const chat = document.querySelector('#messaggi');
+            
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('row');
+            
             const messageCard = document.createElement('div');
             messageCard.classList.add('col', 's8');
-            if (side == 'right')
-                messageCard.classList.add('offset-s4');
-
+            
+            // Se il messaggio è proprio va a destra
+            if (side == 'right') messageCard.classList.add('offset-s4');
+        
             const messageCardDiv = document.createElement('div');
             messageCardDiv.classList.add('card', 'teal', 'lighten-1');
+		
             const messageCardContent = document.createElement('div');
             messageCardContent.classList.add('card-content', 'white-text');
+		
             const messageCardTitle = document.createElement('span');
             messageCardTitle.classList.add('card-title');
             messageCardTitle.innerText = '@' + author;
+		
             const messageCardTimestamp = document.createElement('span');
             messageCardTimestamp.classList.add('grey-text', 'text-lighten-2');
             messageCardTimestamp.innerText = ` alle ${formatDate(data)}`;
             messageCardTimestamp.style.fontSize = '15px';
-            const messageCardText = document.createElement('div');
+            
+	        const messageCardText = document.createElement('div');
             messageCardText.style.wordWrap = 'break-word';
             messageCardText.classList.add('flow-text');
             messageCardText.innerText = message;
+		    
+            // Aggiunge alla fine della chat il messaggio
+            
             messageCardContent.appendChild(messageCardTitle);
             messageCardTitle.appendChild(messageCardTimestamp);
             messageCardContent.appendChild(messageCardText);
@@ -244,11 +277,14 @@
             messageCard.appendChild(messageCardDiv);
             messageDiv.appendChild(messageCard);
             chat.appendChild(messageDiv);
-
+            
+            
+            // Scorri in fondo alla pagina
             window.scrollTo(0, document.body.scrollHeight);
 
         }
-
+	
+	    // Formatta data
         function formatDate(timestamp)
         {
             const data = new Date(timestamp);
@@ -260,14 +296,15 @@
             return `${ora}:${minuti} del ${giorno}/${mese}/${anno}`;
         }
 
-
+        // Comprimi e cifra messaggio
         function cifraMessaggio(messaggio, chiave)
         {
-			messaggio = LZString.compress(messaggio);
+            messaggio = LZString.compress(messaggio);
             var encrypted = CryptoJS.AES.encrypt(messaggio, chiave);
             return encrypted.toString();
         }
-
+    
+        // Decomprimi e decifra messaggio
         function decifraMessaggio(messaggio, chiave)
         {
             var decrypted = CryptoJS.AES.decrypt(messaggio, chiave);
