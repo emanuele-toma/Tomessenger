@@ -376,3 +376,9 @@ function decifraMessaggio(messaggio, chiave)
 La funzione **`decifraMessaggio`** viene chiamata per decomprimere e decifrare un messaggio. Quando viene chiamata, la funzione prende come argomenti il messaggio cifrato e la chiave da usare per decifrarlo. La funzione quindi usa la libreria CryptoJS per decifrare il messaggio con la chiave specificata. Successivamente, usa la libreria **`LZString`** per decomprimere il messaggio decifrato. Infine, la funzione restituisce il messaggio decompresso in formato stringa.
 
 </summary>
+
+## Demo
+[https://tomaemanuele.it](https://tomaemanuele.it)
+
+## Licenza
+Questo programma è sottoposto alla [Licenza GPL 3.0](https://github.com/Illumina/licenses/blob/master/gpl-3.0.txt)
