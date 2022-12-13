@@ -1,5 +1,5 @@
 # Progetto Chat Server Tomenger
-Il progetto consiste in un semplice server di chat che permette agli utenti di creare e unirsi a stanze di chat.
+Il progetto consiste in un semplice server di chat utilizzando Socket.IO e Node.JS che permette agli utenti di creare e unirsi a stanze di chat.
 
 ## Strumenti utilizzati ##
 ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
@@ -375,7 +375,7 @@ function decifraMessaggio(messaggio, chiave)
 
 La funzione **`decifraMessaggio`** viene chiamata per decomprimere e decifrare un messaggio. Quando viene chiamata, la funzione prende come argomenti il messaggio cifrato e la chiave da usare per decifrarlo. La funzione quindi usa la libreria CryptoJS per decifrare il messaggio con la chiave specificata. Successivamente, usa la libreria **`LZString`** per decomprimere il messaggio decifrato. Infine, la funzione restituisce il messaggio decompresso in formato stringa.
 
-</summary>
+</details>
 
 ## Demo
 [https://tomaemanuele.it](https://tomaemanuele.it)
