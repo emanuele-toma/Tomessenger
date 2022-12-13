@@ -1,4 +1,4 @@
-# Progetto Chat Server
+# Progetto Chat Server Tomenger
 Il progetto consiste in un semplice server di chat che permette agli utenti di creare e unirsi a stanze di chat.
 
 ## Strumenti utilizzati ##
@@ -21,9 +21,11 @@ Il progetto consiste in un semplice server di chat che permette agli utenti di c
 ## Avvio
 1. Apri un terminale e spostati nella directory del progetto.
 2. Esegui il comando **`node index.js`** per avviare il server.
-3. Apri l'indirizzo **`http://localhost`** per iniziare a utilizzare la chat
+3. Apri l'indirizzo **`http://localhost`** nel browser per iniziare a utilizzare la chat
 
 ## Spiegazione codice server
+<details>
+<summary>Clicca per espandere</summary>
 
 ### Dipendenze e avvio server HTTP
 ```js
@@ -139,8 +141,12 @@ Quando un utente si disconnette dalla stanza, il codice recupera il nome della s
 });
 ```
 Quando un utente emette un evento **`messaggio`**, il codice verifica se il client si trova in una stanza. Se si trova in una stanza, il messaggio viene inviato a tutti gli utenti della stanza, tranne al mittente.
+</details>
 
 ## Spiegazione codice client
+
+<details>
+<summary>Clicca per espandere</summary>
 
 ### Inizializzazione
 
@@ -273,3 +279,91 @@ function switchToChat()
 ```
 
 La funzione **`switchToChat`** viene chiamata quando si vuole passare alla chat. La funzione nasconde il form di accesso alla chat e mostra la chat vera e propria. Inoltre, aggiunge un event listener per i messaggi in arrivo dalla chat. Quando viene ricevuto un messaggio, viene scritto sia nella console che nella chat stessa.
+
+### Inviare un messaggio cifrato
+
+```js
+function sendMessage(author, timestamp, message, password)
+{
+    // Invia messaggio al server
+    socket.emit('messaggio chat', {author, timestamp, message:cifraMessaggio(message, password)});
+}
+```
+
+La funzione **`sendMessage`** viene chiamata per inviare un messaggio al server. Quando viene chiamata, la funzione prende come argomenti l'autore del messaggio, il timestamp del messaggio, il messaggio stesso e la password dell'utente. La funzione quindi invia un evento 'messaggio chat' al server con questi valori (linea 3), utilizzando la funzione **`cifraMessaggio`** per cifrare il messaggio prima dell'invio. Questo garantisce che i messaggi siano inviati in modo sicuro e protetto.
+
+### Scrivere un messaggio in chat
+
+```js
+function writeMessage(author, timestamp, message, side, password) {
+    // Decifra messaggio
+    message = decifraMessaggio(message, password);
+
+    // Se il messaggio è vuoto ignoralo
+    if (message.length < 1) return;
+
+    // Imposta data del messaggio
+    const data = new Date(timestamp);
+
+    const chat = document.querySelector('#messaggi');
+
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('row');
+
+    const messageCard = document.createElement('div');
+    messageCard.classList.add('col', 's8');
+
+    // Se il messaggio è proprio va a destra
+    if (side == 'right') messageCard.classList.add('offset-s4');
+
+    // codice rimosso per fini di spiegazione    
+
+    // Scorri in fondo alla pagina
+    window.scrollTo(0, document.body.scrollHeight);
+}
+```
+La funzione **`writeMessage`** viene chiamata per visualizzare un messaggio nella chat. Quando viene chiamata, la funzione prende come argomenti l'autore del messaggio, il timestamp del messaggio, il messaggio stesso, il lato della chat in cui deve essere visualizzato e la password dell'utente. La funzione quindi decifra il messaggio usando la funzione **`decifraMessaggio`** e, se il messaggio non è vuoto, viene visualizzato nella chat. Infine, la finestra della chat viene fatta scorrere in fondo per mostrare il nuovo messaggio.
+
+### Formattazione della data del messaggio
+
+```js
+function formatDate(timestamp)
+{
+    const data = new Date(timestamp);
+    const ora = data.getHours() < 10 ? '0' + data.getHours() : data.getHours();
+    const minuti = data.getMinutes() < 10 ? '0' + data.getMinutes() : data.getMinutes();
+    const giorno = data.getDate() < 10 ? '0' + data.getDate() : data.getDate();
+    const mese = data.getMonth() < 10 ? '0' + data.getMonth() : data.getMonth();
+    const anno = data.getFullYear();
+    return `${ora}:${minuti} del ${giorno}/${mese}/${anno}`;
+}
+```
+
+La funzione **`formatDate`** viene chiamata per formattare la data del messaggio. Quando viene chiamata, la funzione prende come argomento il timestamp del messaggio. La funzione quindi crea un oggetto **`Date`** dal timestamp e ottiene l'ora, i minuti, il giorno e l'anno.
+
+### Comprimi e cifra il messaggio
+
+```js
+function cifraMessaggio(messaggio, chiave)
+{
+    messaggio = LZString.compress(messaggio);
+    var encrypted = CryptoJS.AES.encrypt(messaggio, chiave);
+    return encrypted.toString();
+}
+```
+
+La funzione **`cifraMessaggio`** viene chiamata per comprimere e cifrare un messaggio. Quando viene chiamata, la funzione prende come argomenti il messaggio e la chiave da usare per cifrarlo. La funzione quindi usa la libreria **`LZString`** per comprimere il messaggio, quindi usa la libreria **`CryptoJS`** per cifrarlo con la chiave specificata. Infine, la funzione restituisce il messaggio cifrato in formato stringa.
+
+### Decomprimi e decifra il messaggio
+
+```js
+function decifraMessaggio(messaggio, chiave)
+{
+    var decrypted = CryptoJS.AES.decrypt(messaggio, chiave);
+    return LZString.decompress(decrypted.toString(CryptoJS.enc.Utf8));
+}
+```
+
+La funzione **`decifraMessaggio`** viene chiamata per decomprimere e decifrare un messaggio. Quando viene chiamata, la funzione prende come argomenti il messaggio cifrato e la chiave da usare per decifrarlo. La funzione quindi usa la libreria CryptoJS per decifrare il messaggio con la chiave specificata. Successivamente, usa la libreria **`LZString`** per decomprimere il messaggio decifrato. Infine, la funzione restituisce il messaggio decompresso in formato stringa.
+
+</summary>
