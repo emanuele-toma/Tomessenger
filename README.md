@@ -1,4 +1,4 @@
-# Progetto Chat Server Tomenger
+# Progetto Chat Server Tomessenger
 Il progetto consiste in un semplice server di chat utilizzando Socket.IO e Node.JS che permette agli utenti di creare e unirsi a stanze di chat.
 
 ## Strumenti utilizzati ##
