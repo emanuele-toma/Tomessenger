@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Tomessenger</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+	
+    <style>
+
+        .msgbox.input-field input[type=text] {
+            color: #fff;
+            border-bottom: 1px solid #fff !important;
+        }
+
+        .msgbox.input-field input[type=text]:focus + label {
+            color: #fff !important;
+        }
+
+        .msgbox.input-field input[type=text]:focus {
+            border-bottom: 1px solid #fff !important;
+            box-shadow: 0 1px 0 0 #fff !important;
+        }
+
+    </style>
+</head>
+<body>
+<main style="margin-bottom: -20px">
+    <div id="chat-join" class="container">
+        <div class="row center">
+            <div class="col s12">
+                <h1 style="font-size: 48px;" class="teal-text text-lighten-1">Tomessenger</h1>
+                <p class="flow-text">Tomessenger è un'applicazione web che ti permette di comunicare con i tuoi amici.</p>
+                <p class="flow-text">Per iniziare crea una stanza oppure unisciti a una già esistente!</p>
+            </div>
+        </div>
+        <div class="row">
+            <form onsubmit="return false" class="col s10 offset-s1 m8 offset-m2">
+                <div class="row center">
+                    <div class="input-field col s12">
+                        <input id="nome" type="text" name="stanza">
+                        <label for="nome">Nome stanza</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="username" type="text" name="username">
+                        <label for="username">Nome utente</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="password" type="password" name="password">
+                        <label for="password">Password stanza (opzionale)</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s6">
+                        <button class="btn waves-effect waves-light" type="submit" id="btn-crea" name="crea">
+                            Crea
+                            <i class="material-icons right">add</i>
+                        </button>
+                    </div>
+                    <div class="col s6">
+                        <button class="btn waves-effect waves-light right" type="submit" id="btn-entra" name="entra">
+                            Entra
+                            <i class="material-icons right">login</i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="chat" class="container" style="display: none">
+        <div class="row">
+            <div class="col s12">
+                <a href="."><h1 class="teal-text text-lighten-1" style="font-size: 48px;">Tomessenger</h1></a>
+            </div>
+        </div>
+        <div class="row">
+            <div id="messaggi" class="col s12" style="min-height: 67vh">
+
+            </div>
+            <div style="position: sticky; bottom: 0" class="card col s12 teal lighten-1">
+                <div class="row">
+                    <form onsubmit="return false" class="col s12">
+                        <div style="padding-top: 20px; margin-bottom: -10px" class="row">
+                            <div class="msgbox input-field col s6 m8 offset-s1 offset-m1 center-align">
+                                <input id="message" type="text" name="message">
+                                <label class="white-text" for="message">Messaggio</label>
+                            </div>
+
+                            <div class="input-field col s2">
+                                <button class="btn waves-effect waves-light white teal-text" type="submit" id="btn-send"
+                                        name="send">
+                                    Invia
+                                    <i class="material-icons right">send</i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        const btnCrea = document.getElementById('btn-crea');
+        const btnEntra = document.getElementById('btn-entra');
+
+        var nome = "";
+        var username = "";
+        var password = "";
+
+        btnCrea.addEventListener('click', (e) =>
+        {
+            nome = document.getElementById('nome').value;
+            username = document.getElementById('username').value;
+            password = document.getElementById('password').value;
+			
+			var hash = CryptoJS.SHA256(password).toString();
+			
+			
+			if(password == '')
+				hash = password;
+
+            socket.emit('crea', {nome, username, password:hash});
+
+            socket.on(nome, (data) =>
+            {
+                if (data.success == true)
+                {
+                    switchToChat();
+                }
+
+                if (data.success == false)
+                {
+                    M.toast({html: "Attenzione: " + data.message})
+                }
+
+                socket.off(nome);
+            });
+        });
+
+        btnEntra.addEventListener('click', (e) =>
+        {
+            nome = document.getElementById('nome').value;
+            username = document.getElementById('username').value;
+            password = document.getElementById('password').value;
+
+            var hash = CryptoJS.SHA256(password).toString();
+			
+			if(password == '')
+				hash = password;
+			
+            socket.emit('entra', {nome: nome, username, password:hash });
+            socket.on(nome, (data) =>
+            {
+                if (data.success == true)
+                {
+                    switchToChat();
+                }
+
+                if (data.success == false)
+                {
+                    M.toast({html: "Attenzione: " + data.message})
+                }
+
+                socket.off(nome);
+            });
+        });
+
+        function switchToChat()
+        {
+            document.querySelector('#chat-join').style.display = 'none';
+            document.querySelector('#chat').style.display = 'block';
+
+            socket.on('messaggio chat', (msg) =>
+            {
+                console.log(msg);
+                writeMessage(msg.author, msg.timestamp, msg.message, msg.author === username ? 'right' : 'left', password);
+            });
+
+            const btnSend = document.getElementById('btn-send');
+            btnSend.addEventListener('click', (e) =>
+            {
+                const message = document.getElementById('message').value;
+                sendMessage(username, Date.now(), message, password);
+
+                document.getElementById('message').value = '';
+            });
+        }
+
+        function sendMessage(author, timestamp, message, password)
+        {
+            socket.emit('messaggio chat', {author, timestamp, message:cifraMessaggio(message, password)});
+        }
+
+        function writeMessage(author, timestamp, message, side, password)
+        {
+
+            message = decifraMessaggio(message, password);
+
+            if(message.length < 1) return;
+
+            const data = new Date(timestamp);
+
+            const chat = document.querySelector('#messaggi');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('row');
+            const messageCard = document.createElement('div');
+            messageCard.classList.add('col', 's8');
+            if (side == 'right')
+                messageCard.classList.add('offset-s4');
+
+            const messageCardDiv = document.createElement('div');
+            messageCardDiv.classList.add('card', 'teal', 'lighten-1');
+            const messageCardContent = document.createElement('div');
+            messageCardContent.classList.add('card-content', 'white-text');
+            const messageCardTitle = document.createElement('span');
+            messageCardTitle.classList.add('card-title');
+            messageCardTitle.innerText = '@' + author;
+            const messageCardTimestamp = document.createElement('span');
+            messageCardTimestamp.classList.add('grey-text', 'text-lighten-2');
+            messageCardTimestamp.innerText = ` alle ${formatDate(data)}`;
+            messageCardTimestamp.style.fontSize = '15px';
+            const messageCardText = document.createElement('div');
+            messageCardText.style.wordWrap = 'break-word';
+            messageCardText.classList.add('flow-text');
+            messageCardText.innerText = message;
+            messageCardContent.appendChild(messageCardTitle);
+            messageCardTitle.appendChild(messageCardTimestamp);
+            messageCardContent.appendChild(messageCardText);
+            messageCardDiv.appendChild(messageCardContent);
+            messageCard.appendChild(messageCardDiv);
+            messageDiv.appendChild(messageCard);
+            chat.appendChild(messageDiv);
+
+            window.scrollTo(0, document.body.scrollHeight);
+
+        }
+
+        function formatDate(timestamp)
+        {
+            const data = new Date(timestamp);
+            const ora = data.getHours() < 10 ? '0' + data.getHours() : data.getHours();
+            const minuti = data.getMinutes() < 10 ? '0' + data.getMinutes() : data.getMinutes();
+            const giorno = data.getDate() < 10 ? '0' + data.getDate() : data.getDate();
+            const mese = data.getMonth() < 10 ? '0' + data.getMonth() : data.getMonth();
+            const anno = data.getFullYear();
+            return `${ora}:${minuti} del ${giorno}/${mese}/${anno}`;
+        }
+
+
+        function cifraMessaggio(messaggio, chiave)
+        {
+			messaggio = LZString.compress(messaggio);
+            var encrypted = CryptoJS.AES.encrypt(messaggio, chiave);
+            return encrypted.toString();
+        }
+
+        function decifraMessaggio(messaggio, chiave)
+        {
+            var decrypted = CryptoJS.AES.decrypt(messaggio, chiave);
+            return LZString.decompress(decrypted.toString(CryptoJS.enc.Utf8));
+        }
+
+    </script>
+</main>
+</body>
+</html>
