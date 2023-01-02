@@ -291,7 +291,7 @@
             const ora = data.getHours() < 10 ? '0' + data.getHours() : data.getHours();
             const minuti = data.getMinutes() < 10 ? '0' + data.getMinutes() : data.getMinutes();
             const giorno = data.getDate() < 10 ? '0' + data.getDate() : data.getDate();
-            const mese = data.getMonth() < 10 ? '0' + data.getMonth() : data.getMonth();
+            const mese = data.getMonth() < 10 ? '0' + data.getMonth()+1 : data.getMonth();
             const anno = data.getFullYear();
             return `${ora}:${minuti} del ${giorno}/${mese}/${anno}`;
         }
