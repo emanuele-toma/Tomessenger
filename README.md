@@ -378,8 +378,5 @@ La funzione **`decifraMessaggio`** viene chiamata per decomprimere e decifrare u
 
 </details>
 
-## Demo
-[https://tomaemanuele.it](https://tomaemanuele.it)
-
 ## Licenza
 Questo programma è sottoposto alla [Licenza GPL 3.0](https://github.com/Illumina/licenses/blob/master/gpl-3.0.txt)
