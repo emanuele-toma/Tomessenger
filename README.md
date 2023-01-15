@@ -378,5 +378,9 @@ La funzione **`decifraMessaggio`** viene chiamata per decomprimere e decifrare u
 
 </details>
 
+## Demo
+
+Versione demo [Qui](https://tomessenger.glitch.me)
+
 ## Licenza
 Questo programma è sottoposto alla [Licenza GPL 3.0](https://github.com/Illumina/licenses/blob/master/gpl-3.0.txt)
