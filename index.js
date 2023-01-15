@@ -1,4 +1,5 @@
 const express = require('express'); // Modulo per server HTTP
+const favicon = require('express-favicon');
 const app = express();
 const server = require('http').Server(app); // Server HTTP
 const { Server } = require('socket.io'); // Server Socket
